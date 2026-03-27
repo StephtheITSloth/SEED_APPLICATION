@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stephan Karim — SEED Brklyn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --lime: #C8F400;
+    --lime-dim: #9EBF00;
+    --lime-light: #F4FBA0;
+    --black: #0D0D0D;
+    --off-black: #141414;
+    --card: #1A1A1A;
+    --card2: #202020;
+    --border: rgba(255,255,255,0.08);
+    --text: #F0EDE6;
+    --muted: rgba(240,237,230,0.45);
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Cursor */
+  #cursor {
+    position: fixed; top: 0; left: 0;
+    width: 12px; height: 12px;
+    background: var(--lime);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: width 0.2s ease, height 0.2s ease;
+    mix-blend-mode: difference;
+  }
+  #cursor.hover { width: 40px; height: 40px; }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(13,13,13,0.88);
+    backdrop-filter: blur(12px);
+  }
+  .nav-logo { font-family: var(--font-display); font-size: 22px; letter-spacing: 0.12em; color: var(--lime); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+    text-decoration: none; color: var(--muted); text-transform: uppercase; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--lime); }
+  .nav-tag {
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--black); background: var(--lime);
+    padding: 4px 10px; border-radius: 2px; letter-spacing: 0.08em;
+  }
+
+  /* Hero */
+  #hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 120px 40px 60px;
+    position: relative; overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(200,244,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,244,0,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+  .hero-glow {
+    position: absolute; bottom: -200px; left: -100px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(200,244,0,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em;
+    color: var(--lime); text-transform: uppercase; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px; position: relative; z-index: 1;
+  }
+  .hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--lime); }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(72px, 12vw, 160px);
+    line-height: 0.9; letter-spacing: 0.02em;
+    color: var(--text); position: relative; z-index: 1;
+  }
+  .hero-title span { color: var(--lime); }
+  .hero-sub {
+    margin-top: 40px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    border-top: 1px solid var(--border);
+    position: relative; z-index: 1;
+  }
+  .hero-stat {
+    padding: 28px 0 0;
+    border-right: 1px solid var(--border);
+    padding-right: 32px;
+  }
+  .hero-stat:first-child { padding-left: 0; }
+  .hero-stat:nth-child(2) { padding-left: 32px; }
+  .hero-stat:last-child { border-right: none; padding-left: 32px; }
+  .stat-num { font-family: var(--font-display); font-size: 36px; color: var(--lime); display: block; }
+  .stat-label { font-size: 12px; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.08em; }
+  .scroll-hint {
+    position: absolute; bottom: 32px; right: 40px;
+    font-family: var(--font-mono); font-size: 10px;
+    color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase;
+    writing-mode: vertical-rl; display: flex; align-items: center; gap: 12px;
+  }
+  .scroll-hint::after { content: ''; width: 1px; height: 60px; background: linear-gradient(var(--lime), transparent); }
+
+  /* Sections */
+  section { padding: 100px 40px; }
+  .section-label {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--lime); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::before { content: attr(data-num); color: var(--muted); }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 72px);
+    letter-spacing: 0.04em; line-height: 1; margin-bottom: 60px;
+  }
+
+  /* Brand */
+  #brand { background: var(--off-black); }
+  .brand-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .brand-cell { background: var(--card); padding: 40px; }
+  .brand-cell.wide { grid-column: span 2; }
+  .brand-cell-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 24px; }
+  .swatches { display: flex; gap: 16px; flex-wrap: wrap; }
+  .swatch-group { display: flex; flex-direction: column; }
+  .swatch { width: 64px; height: 64px; border-radius: 4px; }
+  .swatch-label { margin-top: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); line-height: 1.4; }
+  .type-specimen { margin-bottom: 24px; }
+  .type-specimen-name { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-bottom: 8px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .type-display { font-family: var(--font-display); font-size: 48px; line-height: 1; }
+  .type-body { font-family: var(--font-body); font-size: 18px; font-weight: 300; line-height: 1.5; }
+  .type-mono { font-family: var(--font-mono); font-size: 14px; color: var(--lime); }
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .pillar { background: var(--card2); padding: 28px; border-left: 2px solid var(--lime); }
+  .pillar-title { font-family: var(--font-display); font-size: 20px; letter-spacing: 0.06em; color: var(--lime); margin-bottom: 8px; }
+  .pillar-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* Case map */
+  #casemap { background: var(--black); }
+  .case-outer {
+    border: 1px solid rgba(200,244,0,0.2); border-radius: 8px; padding: 24px;
+    background: linear-gradient(135deg, rgba(200,244,0,0.03) 0%, transparent 60%);
+  }
+  .case-rim { font-family: var(--font-mono); font-size: 10px; color: var(--lime); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; text-align: center; opacity: 0.6; }
+  .case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; aspect-ratio: 2/1.1; }
+  .case-zone {
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 28px 24px; position: relative; cursor: pointer;
+    transition: border-color 0.3s, background 0.3s, transform 0.2s;
+    background: var(--card); overflow: hidden;
+  }
+  .case-zone::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(200,244,0,0.06) 0%, transparent 50%);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .case-zone:hover { border-color: rgba(200,244,0,0.4); transform: scale(1.01); }
+  .case-zone:hover::before, .case-zone.active::before { opacity: 1; }
+  .case-zone.active { border-color: var(--lime); background: rgba(200,244,0,0.05); }
+  .zone-num { font-family: var(--font-mono); font-size: 10px; color: var(--lime); letter-spacing: 0.1em; margin-bottom: 10px; opacity: 0.7; }
+  .zone-name { font-family: var(--font-display); font-size: 28px; letter-spacing: 0.06em; color: var(--text); margin-bottom: 8px; line-height: 1; }
+  .zone-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .zone-props { position: absolute; bottom: 16px; right: 16px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .zone-prop { font-family: var(--font-mono); font-size: 9px; padding: 3px 7px; border: 1px solid var(--border); border-radius: 2px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .case-minimap { margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .minimap-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; transition: background 0.2s; }
+  .minimap-dot.active { background: var(--lime); }
+
+  /* Characters */
+  #characters { background: var(--off-black); }
+  .char-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .char-card { background: var(--card); padding: 32px 24px; cursor: pointer; transition: background 0.3s; overflow: hidden; }
+  .char-card:hover { background: var(--card2); }
+  .char-card.selected { background: rgba(200,244,0,0.08); outline: 1px solid var(--lime); }
+  .char-avatar {
+    width: 100%; aspect-ratio: 1; background: var(--card2);
+    border-radius: 4px; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px; position: relative; overflow: hidden; transition: transform 0.3s;
+  }
+  .char-card:hover .char-avatar { transform: scale(1.03); }
+  .char-avatar-bg { position: absolute; inset: 0; background: linear-gradient(160deg, rgba(200,244,0,0.08) 0%, transparent 60%); }
+  .char-name { font-family: var(--font-display); font-size: 22px; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .char-age { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+  .tone-swatches { display: flex; gap: 6px; }
+  .tone { width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s, transform 0.2s; }
+  .tone:hover, .tone.active { border-color: var(--lime); transform: scale(1.2); }
+  .char-select-btn {
+    margin-top: 20px; width: 100%; padding: 10px;
+    background: transparent; border: 1px solid var(--border); border-radius: 2px;
+    color: var(--muted); font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+  }
+  .char-select-btn:hover, .char-card.selected .char-select-btn { background: var(--lime); color: var(--black); border-color: var(--lime); }
+
+  /* Panels */
+  #panels { background: var(--black); }
+  .panel-nav { display: flex; gap: 2px; margin-bottom: 2px; }
+  .panel-tab {
+    flex: 1; padding: 16px 12px; background: var(--card);
+    border: none; color: var(--muted);
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+    text-align: left; border-top: 2px solid transparent;
+  }
+  .panel-tab:hover { color: var(--text); background: var(--card2); }
+  .panel-tab.active { color: var(--lime); background: var(--card2); border-top-color: var(--lime); }
+  .panel-content { background: var(--card); padding: 56px 48px; display: none; animation: fadeIn 0.3s ease; }
+  .panel-content.active { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  .panel-hook { font-family: var(--font-display); font-size: 42px; letter-spacing: 0.04em; line-height: 1.05; margin-bottom: 24px; }
+  .panel-hook span { color: var(--lime); }
+  .panel-narrative { font-size: 14px; color: var(--muted); line-height: 1.75; margin-bottom: 32px; font-weight: 300; font-style: italic; }
+  .project-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .project-item {
+    display: flex; align-items: center; gap: 14px;
+    font-size: 13px; padding: 14px 16px;
+    background: var(--card2); border-radius: 2px;
+    border-left: 2px solid var(--border); transition: border-color 0.2s; cursor: pointer;
+  }
+  .project-item:hover { border-left-color: var(--lime); }
+  .project-item::before { content: '→'; color: var(--lime); font-family: var(--font-mono); font-size: 12px; }
+  .panel-placeholder {
+    aspect-ratio: 4/3; background: var(--card2); border-radius: 4px;
+    border: 1px dashed rgba(200,244,0,0.15);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 12px; color: var(--muted); font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.1em; text-align: center; padding: 20px;
+  }
+  .placeholder-icon { font-size: 32px; opacity: 0.4; }
+
+  /* Contact */
+  #contact { background: var(--off-black); display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+  .contact-title { font-family: var(--font-display); font-size: clamp(48px, 7vw, 96px); letter-spacing: 0.04em; line-height: 0.95; }
+  .contact-title span { color: var(--lime); display: block; }
+  .contact-links { display: flex; flex-direction: column; gap: 16px; }
+  .contact-link {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 24px; background: var(--card); text-decoration: none;
+    color: var(--text); border: 1px solid var(--border); border-radius: 2px; transition: all 0.2s;
+  }
+  .contact-link:hover { border-color: var(--lime); background: rgba(200,244,0,0.05); }
+  .contact-link-label { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); display: block; margin-bottom: 4px; }
+  .contact-link-val { font-size: 14px; font-weight: 500; }
+  .contact-arrow { color: var(--lime); font-size: 18px; opacity: 0; transform: translateX(-8px); transition: all 0.2s; }
+  .contact-link:hover .contact-arrow { opacity: 1; transform: none; }
+
+  footer { padding: 24px 40px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .footer-left { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.1em; }
+  .footer-seed { font-family: var(--font-display); font-size: 18px; letter-spacing: 0.15em; color: var(--lime); }
+
+  /* Tray overlay */
+  #tray-overlay {
+    position: fixed; inset: 0; background: var(--black); z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s;
+  }
+  #tray-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .tray-eyebrow { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); margin-bottom: 32px; animation: fadeInUp 0.8s ease 0.2s both; }
+  .tray-title { font-family: var(--font-display); font-size: clamp(48px, 8vw, 96px); letter-spacing: 0.06em; text-align: center; line-height: 1; margin-bottom: 8px; animation: fadeInUp 0.8s ease 0.35s both; }
+  .tray-title span { color: var(--lime); }
+  .tray-sub { font-size: 14px; color: var(--muted); font-weight: 300; margin-bottom: 56px; text-align: center; animation: fadeInUp 0.8s ease 0.5s both; }
+  .tray-cards { display: flex; gap: 16px; animation: fadeInUp 0.8s ease 0.65s both; }
+  .tray-card {
+    width: 140px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 4px; padding: 24px 16px; text-align: center;
+    cursor: pointer; transition: all 0.25s;
+  }
+  .tray-card:hover { border-color: var(--lime); background: rgba(200,244,0,0.07); transform: translateY(-8px); }
+  .tray-card-emoji { font-size: 36px; margin-bottom: 12px; display: block; }
+  .tray-card-name { font-family: var(--font-display); font-size: 16px; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .tray-card-age { font-family: var(--font-mono); font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .tray-skip { margin-top: 40px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; background: none; border: none; cursor: pointer; padding: 8px 16px; transition: color 0.2s; animation: fadeInUp 0.8s ease 0.8s both; }
+  .tray-skip:hover { color: var(--lime); }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+
+  /* Reveal */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    section, #contact { padding: 60px 20px; }
+    #hero { padding: 100px 20px 60px; }
+    .hero-sub { grid-template-columns: 1fr; }
+    .hero-stat { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 0; }
+    .brand-grid, .char-grid, .panel-content.active, #contact { grid-template-columns: 1fr; }
+    .brand-cell.wide { grid-column: span 1; }
+    .pillars { grid-template-columns: 1fr; }
+    .case-grid { grid-template-columns: 1fr; aspect-ratio: auto; }
+    .tray-cards { gap: 10px; flex-wrap: wrap; justify-content: center; }
+    .tray-card { width: 120px; }
+    .panel-nav { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+
+<!-- Tray intro -->
+<div id="tray-overlay">
+  <p class="tray-eyebrow">Welcome to the portfolio of</p>
+  <h1 class="tray-title">Stephan <span>Karim</span></h1>
+  <p class="tray-sub">Graphic Designer &middot; Technologist &middot; Community Builder</p>
+  <div class="tray-cards">
+    <div class="tray-card" onclick="enterAs('kid')">
+      <span class="tray-card-emoji">🧒🏾</span>
+      <div class="tray-card-name">Kid</div>
+      <div class="tray-card-age">Ages 8–12</div>
+    </div>
+    <div class="tray-card" onclick="enterAs('mother')">
+      <span class="tray-card-emoji">👩🏾</span>
+      <div class="tray-card-name">Mother</div>
+      <div class="tray-card-age">30s–40s</div>
+    </div>
+    <div class="tray-card" onclick="enterAs('father')">
+      <span class="tray-card-emoji">👨🏾</span>
+      <div class="tray-card-name">Father</div>
+      <div class="tray-card-age">30s–40s</div>
+    </div>
+    <div class="tray-card" onclick="enterAs('grandma')">
+      <span class="tray-card-emoji">👵🏾</span>
+      <div class="tray-card-name">Grandma</div>
+      <div class="tray-card-age">60s–70s</div>
+    </div>
+  </div>
+  <button class="tray-skip" onclick="enterAs('skip')">Skip &rarr;</button>
+</div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">SK &times; SEED</div>
+  <div class="nav-links">
+    <a href="#brand">Brand</a>
+    <a href="#casemap">Map</a>
+    <a href="#characters">Characters</a>
+    <a href="#panels">Work</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="nav-tag">Applying &mdash; Graphic Designer</div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">Portfolio &middot; SEED Brklyn &middot; Brooklyn, NY</div>
+  <h1 class="hero-title">Seed<br/>the <span>Block</span></h1>
+  <div class="hero-sub">
+    <div class="hero-stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label">Case studies</span>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">Brand pillars</span>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-num">1</span>
+      <span class="stat-label">Community-first vision</span>
+    </div>
+  </div>
+  <div class="scroll-hint">Scroll to explore</div>
+</section>
+
+<!-- Brand -->
+<section id="brand">
+  <div class="section-label reveal" data-num="01 &mdash;">Brand system</div>
+  <h2 class="section-title reveal">The Language<br/>of SEED</h2>
+  <div class="brand-grid reveal">
+    <div class="brand-cell">
+      <div class="brand-cell-label">Color palette</div>
+      <div class="swatches">
+        <div class="swatch-group">
+          <div class="swatch" style="background:#C8F400;"></div>
+          <div class="swatch-label">#C8F400<br/>Lime &mdash; primary</div>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background:#0D0D0D; border:1px solid rgba(255,255,255,0.15);"></div>
+          <div class="swatch-label">#0D0D0D<br/>Black &mdash; base</div>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background:#F0EDE6;"></div>
+          <div class="swatch-label">#F0EDE6<br/>Cream &mdash; text</div>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background:#6B4226;"></div>
+          <div class="swatch-label">#6B4226<br/>Brown &mdash; earth</div>
+        </div>
+        <div class="swatch-group">
+          <div class="swatch" style="background:#2D4A1E;"></div>
+          <div class="swatch-label">#2D4A1E<br/>Forest &mdash; depth</div>
+        </div>
+      </div>
+    </div>
+    <div class="brand-cell">
+      <div class="brand-cell-label">Typography system</div>
+      <div class="type-specimen">
+        <div class="type-specimen-name">Display &mdash; Bebas Neue</div>
+        <div class="type-display">SEED THE BLOCK</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-specimen-name">Body &mdash; DM Sans Light</div>
+        <div class="type-body">Community-first design for Brooklyn.</div>
+      </div>
+      <div class="type-specimen">
+        <div class="type-specimen-name">Mono &mdash; DM Mono</div>
+        <div class="type-mono">01 &mdash; Brand &amp; Packaging</div>
+      </div>
+    </div>
+    <div class="brand-cell wide">
+      <div class="brand-cell-label">Brand pillars</div>
+      <div class="pillars">
+        <div class="pillar">
+          <div class="pillar-title">Seed the Block</div>
+          <div class="pillar-body">Community-first, local impact, cultural stewardship. Every design decision connects back to the block.</div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-title">Accessible Luxury</div>
+          <div class="pillar-body">Premium but welcoming. The jewelry-case aesthetic communicates value without gatekeeping.</div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-title">Artist-Led</div>
+          <div class="pillar-body">Championing small Black designers and creators. Every surface is a stage for Black creative voices.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Case map -->
+<section id="casemap">
+  <div class="section-label reveal" data-num="02 &mdash;">Space map</div>
+  <h2 class="section-title reveal">The Jewelry<br/>Case</h2>
+  <div class="case-outer reveal">
+    <div class="case-rim">SEED Brklyn &middot; Bedford Ave &middot; Open Display Case</div>
+    <div class="case-grid">
+      <div class="case-zone active" onclick="selectZone(0)">
+        <div class="zone-num">TL &mdash; 01</div>
+        <div class="zone-name">Greenhouse Caf&eacute;</div>
+        <div class="zone-desc">Where visitors first experience SEED. Brand warmth through print, packaging, and beverage identity.</div>
+        <div class="zone-props">
+          <span class="zone-prop">Brand</span>
+          <span class="zone-prop">Packaging</span>
+          <span class="zone-prop">Print</span>
+        </div>
+      </div>
+      <div class="case-zone" onclick="selectZone(1)">
+        <div class="zone-num">TR &mdash; 02</div>
+        <div class="zone-name">The Garden</div>
+        <div class="zone-desc">Curated fashion and collectibles. Editorial design and retail visuals for Black designers.</div>
+        <div class="zone-props">
+          <span class="zone-prop">Fashion</span>
+          <span class="zone-prop">Editorial</span>
+          <span class="zone-prop">Retail</span>
+        </div>
+      </div>
+      <div class="case-zone" onclick="selectZone(2)">
+        <div class="zone-num">BL &mdash; 03</div>
+        <div class="zone-name">Community / Oasis</div>
+        <div class="zone-desc">Gallery walls, workshops, activations. Event branding and cultural programming visuals.</div>
+        <div class="zone-props">
+          <span class="zone-prop">Events</span>
+          <span class="zone-prop">Posters</span>
+          <span class="zone-prop">Motion</span>
+        </div>
+      </div>
+      <div class="case-zone" onclick="selectZone(3)">
+        <div class="zone-num">BR &mdash; 04</div>
+        <div class="zone-name">All Products</div>
+        <div class="zone-desc">The digital storefront extended. E-commerce UX, email campaigns, and social commerce templates.</div>
+        <div class="zone-props">
+          <span class="zone-prop">Digital</span>
+          <span class="zone-prop">E-comm</span>
+          <span class="zone-prop">Social</span>
+        </div>
+      </div>
+    </div>
+    <div class="case-minimap">
+      <div class="minimap-dot active" onclick="selectZone(0)"></div>
+      <div class="minimap-dot" onclick="selectZone(1)"></div>
+      <div class="minimap-dot" onclick="selectZone(2)"></div>
+      <div class="minimap-dot" onclick="selectZone(3)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Characters -->
+<section id="characters">
+  <div class="section-label reveal" data-num="03 &mdash;">Character system</div>
+  <h2 class="section-title reveal">Choose Your<br/>Avatar</h2>
+  <div class="char-grid reveal">
+    <div class="char-card" id="char-kid" onclick="selectChar('kid')">
+      <div class="char-avatar"><div class="char-avatar-bg"></div>🧒🏾</div>
+      <div class="char-name">Kid</div>
+      <div class="char-age">Ages 8&ndash;12</div>
+      <div class="tone-swatches">
+        <div class="tone active" style="background:#3D1C02;"></div>
+        <div class="tone" style="background:#6B3A1F;"></div>
+        <div class="tone" style="background:#A0522D;"></div>
+        <div class="tone" style="background:#C68642;"></div>
+        <div class="tone" style="background:#E0AC69;"></div>
+      </div>
+      <button class="char-select-btn">Select</button>
+    </div>
+    <div class="char-card" id="char-mother" onclick="selectChar('mother')">
+      <div class="char-avatar"><div class="char-avatar-bg"></div>👩🏾</div>
+      <div class="char-name">Mother</div>
+      <div class="char-age">30s&ndash;40s</div>
+      <div class="tone-swatches">
+        <div class="tone active" style="background:#3D1C02;"></div>
+        <div class="tone" style="background:#6B3A1F;"></div>
+        <div class="tone" style="background:#A0522D;"></div>
+        <div class="tone" style="background:#C68642;"></div>
+        <div class="tone" style="background:#E0AC69;"></div>
+      </div>
+      <button class="char-select-btn">Select</button>
+    </div>
+    <div class="char-card" id="char-father" onclick="selectChar('father')">
+      <div class="char-avatar"><div class="char-avatar-bg"></div>👨🏾</div>
+      <div class="char-name">Father</div>
+      <div class="char-age">30s&ndash;40s</div>
+      <div class="tone-swatches">
+        <div class="tone active" style="background:#3D1C02;"></div>
+        <div class="tone" style="background:#6B3A1F;"></div>
+        <div class="tone" style="background:#A0522D;"></div>
+        <div class="tone" style="background:#C68642;"></div>
+        <div class="tone" style="background:#E0AC69;"></div>
+      </div>
+      <button class="char-select-btn">Select</button>
+    </div>
+    <div class="char-card" id="char-grandma" onclick="selectChar('grandma')">
+      <div class="char-avatar"><div class="char-avatar-bg"></div>👵🏾</div>
+      <div class="char-name">Grandma</div>
+      <div class="char-age">60s&ndash;70s</div>
+      <div class="tone-swatches">
+        <div class="tone active" style="background:#3D1C02;"></div>
+        <div class="tone" style="background:#6B3A1F;"></div>
+        <div class="tone" style="background:#A0522D;"></div>
+        <div class="tone" style="background:#C68642;"></div>
+        <div class="tone" style="background:#E0AC69;"></div>
+      </div>
+      <button class="char-select-btn">Select</button>
+    </div>
+  </div>
+</section>
+
+<!-- Work panels -->
+<section id="panels">
+  <div class="section-label reveal" data-num="04 &mdash;">Case studies</div>
+  <h2 class="section-title reveal">The Work</h2>
+  <div class="reveal">
+    <div class="panel-nav">
+      <button class="panel-tab active" onclick="openPanel(0)">Greenhouse Caf&eacute;</button>
+      <button class="panel-tab" onclick="openPanel(1)">The Garden</button>
+      <button class="panel-tab" onclick="openPanel(2)">Community</button>
+      <button class="panel-tab" onclick="openPanel(3)">Products</button>
+      <button class="panel-tab" onclick="openPanel(4)">Contact</button>
+    </div>
+    <div class="panel-content active" id="panel-0">
+      <div>
+        <h3 class="panel-hook">Brand &amp; <span>Packaging</span> Design</h3>
+        <p class="panel-narrative">"The Greenhouse Café is where SEED visitors first experience the brand. Here's how I'd translate that warmth into print and packaging."</p>
+        <ul class="project-list">
+          <li class="project-item">Menu board redesign concept</li>
+          <li class="project-item">Merchandise packaging &mdash; tote bags, mugs</li>
+          <li class="project-item">Social media templates for café features</li>
+          <li class="project-item">Lookbook for seasonal drink launches</li>
+        </ul>
+      </div>
+      <div class="panel-placeholder">
+        <span class="placeholder-icon">🎨</span>
+        <span>Drop your case study<br/>images in here</span>
+      </div>
+    </div>
+    <div class="panel-content" id="panel-1">
+      <div>
+        <h3 class="panel-hook">Fashion <span>Editorial</span> &amp; Retail</h3>
+        <p class="panel-narrative">"SEED champions small Black designers. Here's how I'd amplify their stories through editorial design and retail visuals."</p>
+        <ul class="project-list">
+          <li class="project-item">Multi-page lookbook PDF (3&ndash;5 spreads)</li>
+          <li class="project-item">Product card system for e-commerce</li>
+          <li class="project-item">Instagram carousel templates</li>
+          <li class="project-item">"Seed the Streets" streetwear drop campaign</li>
+        </ul>
+      </div>
+      <div class="panel-placeholder">
+        <span class="placeholder-icon">👗</span>
+        <span>Lookbook spreads<br/>drop in here</span>
+      </div>
+    </div>
+    <div class="panel-content" id="panel-2">
+      <div>
+        <h3 class="panel-hook">Community &amp; <span>Event</span> Branding</h3>
+        <p class="panel-narrative">"SEED's mantra is 'Seed the Block.' Here's how I'd design the visual language for workshops, activations, and cultural programming."</p>
+        <ul class="project-list">
+          <li class="project-item">"Branching Out in Brooklyn" event series</li>
+          <li class="project-item">Artist spotlight template system</li>
+          <li class="project-item">Community partnership visual guidelines</li>
+          <li class="project-item">AR filter and projection concepts</li>
+        </ul>
+      </div>
+      <div class="panel-placeholder">
+        <span class="placeholder-icon">🎭</span>
+        <span>Event posters<br/>drop in here</span>
+      </div>
+    </div>
+    <div class="panel-content" id="panel-3">
+      <div>
+        <h3 class="panel-hook">Digital &amp; <span>E-Commerce</span> Design</h3>
+        <p class="panel-narrative">"SEED's online shop extends the in-store experience. Here's how I'd create seamless, beautiful digital touchpoints."</p>
+        <ul class="project-list">
+          <li class="project-item">Homepage redesign mockup</li>
+          <li class="project-item">Mobile-first product detail page</li>
+          <li class="project-item">Email campaign &mdash; FW25 "Seed the Block"</li>
+          <li class="project-item">Social commerce templates</li>
+        </ul>
+      </div>
+      <div class="panel-placeholder">
+        <span class="placeholder-icon">🛍</span>
+        <span>UI mockups<br/>drop in here</span>
+      </div>
+    </div>
+    <div class="panel-content" id="panel-4">
+      <div>
+        <h3 class="panel-hook">Hi, I'm <span>Stephan</span></h3>
+        <p class="panel-narrative">Graphic designer, technologist, and community builder &mdash; applying for the Graphic Designer role at SEED Brklyn.</p>
+        <ul class="project-list">
+          <li class="project-item">Email &rarr; stephan@email.com</li>
+          <li class="project-item">LinkedIn &rarr; linkedin.com/in/stephankarim</li>
+          <li class="project-item">Portfolio &rarr; stephankarim.com</li>
+          <li class="project-item">GitHub &rarr; github.com/stephankarim</li>
+        </ul>
+      </div>
+      <div class="panel-placeholder">
+        <span class="placeholder-icon">👤</span>
+        <span>Headshot or<br/>portrait here</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="reveal">
+    <p style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--lime);margin-bottom:16px;">05 &mdash; Contact</p>
+    <h2 class="contact-title">Let's<br/><span>Build.</span></h2>
+  </div>
+  <div class="contact-links reveal">
+    <a href="mailto:stephan@email.com" class="contact-link">
+      <div><span class="contact-link-label">Email</span><span class="contact-link-val">stephan@email.com</span></div>
+      <span class="contact-arrow">&rarr;</span>
+    </a>
+    <a href="https://linkedin.com" target="_blank" class="contact-link">
+      <div><span class="contact-link-label">LinkedIn</span><span class="contact-link-val">linkedin.com/in/stephankarim</span></div>
+      <span class="contact-arrow">&rarr;</span>
+    </a>
+    <a href="https://stephankarim.com" target="_blank" class="contact-link">
+      <div><span class="contact-link-label">Portfolio</span><span class="contact-link-val">stephankarim.com</span></div>
+      <span class="contact-arrow">&rarr;</span>
+    </a>
+    <a href="https://github.com" target="_blank" class="contact-link">
+      <div><span class="contact-link-label">GitHub</span><span class="contact-link-val">github.com/stephankarim</span></div>
+      <span class="contact-arrow">&rarr;</span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span class="footer-left">Stephan Karim &middot; Brooklyn, NY &middot; 2026</span>
+  <span class="footer-seed">SEED BRKLYN</span>
+</footer>
+
+<script>
+  /* Cursor */
+  const cur = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX + 'px';
+    cur.style.top = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,button,.char-card,.case-zone,.tray-card,.tone,.project-item').forEach(el => {
+    el.addEventListener('mouseenter', () => cur.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cur.classList.remove('hover'));
+  });
+
+  /* Tray */
+  function enterAs(char) {
+    document.getElementById('tray-overlay').classList.add('hidden');
+    if (char !== 'skip') selectChar(char);
+  }
+
+  /* Zone map */
+  function selectZone(idx) {
+    document.querySelectorAll('.case-zone').forEach((z,i) => z.classList.toggle('active', i===idx));
+    document.querySelectorAll('.minimap-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+  }
+
+  /* Characters */
+  function selectChar(id) {
+    document.querySelectorAll('.char-card').forEach(c => c.classList.remove('selected'));
+    const el = document.getElementById('char-' + id);
+    if (el) el.classList.add('selected');
+  }
+
+  /* Skin tones */
+  document.querySelectorAll('.tone-swatches').forEach(group => {
+    group.querySelectorAll('.tone').forEach(tone => {
+      tone.addEventListener('click', e => {
+        e.stopPropagation();
+        group.querySelectorAll('.tone').forEach(t => t.classList.remove('active'));
+        tone.classList.add('active');
+      });
+    });
+  });
+
+  /* Panels */
+  function openPanel(idx) {
+    document.querySelectorAll('.panel-tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+    document.querySelectorAll('.panel-content').forEach((p,i) => p.classList.toggle('active', i===idx));
+  }
+
+  /* Scroll reveal */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
